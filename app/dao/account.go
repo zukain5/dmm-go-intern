@@ -40,8 +40,7 @@ func (r *account) FindByUsername(ctx context.Context, username string) (*object.
 
 // Create : ユーザの作成
 func (r *account) Create(ctx context.Context, a *object.Account) error {
-	query := "INSERT INTO account (username, password_hash, display_name, avatar, header, note) VALUES (?, ?, ?, NULL, NULL, NULL)"
-	_, err := r.db.Exec(query, a.Username, a.PasswordHash, a.Username)
+	_, err := r.db.NamedExecContext(ctx, "INSERT INTO account (username, password_hash) VALUES (:username, :password_hash)", &a)
 	if err != nil {
 		return fmt.Errorf("failed to create account into db: %w", err)
 	}
