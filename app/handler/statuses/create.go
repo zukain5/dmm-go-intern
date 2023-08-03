@@ -3,7 +3,6 @@ package statuses
 import (
 	"encoding/json"
 	"net/http"
-	"time"
 	"yatter-backend-go/app/domain/object"
 	"yatter-backend-go/app/handler/auth"
 )
@@ -25,15 +24,15 @@ func (h *handler) Create(w http.ResponseWriter, r *http.Request) {
 
 	status := new(object.Status)
 	status.Content = req.Status
-	status.CreateAt = time.Now()
 	status.Account = auth.AccountOf(r)
-	if err := h.sr.Create(ctx, status); err != nil {
+	entity, err := h.sr.Create(ctx, status)
+	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(status); err != nil {
+	if err := json.NewEncoder(w).Encode(entity); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

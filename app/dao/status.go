@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strconv"
 	"yatter-backend-go/app/domain/object"
 	"yatter-backend-go/app/domain/repository"
 
@@ -24,13 +25,13 @@ func NewStatus(db *sqlx.DB) repository.Status {
 }
 
 // Create : ステータスの作成
-func (r *status) Create(ctx context.Context, s *object.Status) error {
-	_, err := r.db.NamedExecContext(
+func (r *status) Create(ctx context.Context, s *object.Status) (*object.Status, error) {
+	res, err := r.db.NamedExecContext(
 		ctx,
 		`INSERT INTO status (
-			content, create_at, account_id
+			content, account_id
 		) VALUES (
-			:content, :create_at, :account_id
+			:content, :account_id
 		)`,
 		map[string]interface{}{
 			"content":    s.Content,
@@ -39,9 +40,14 @@ func (r *status) Create(ctx context.Context, s *object.Status) error {
 		},
 	)
 	if err != nil {
-		return fmt.Errorf("failed to create status into db: %w", err)
+		return nil, fmt.Errorf("failed to create status into db: %w", err)
 	}
-	return nil
+
+	// TODO: エラー対応
+	id, _ := res.LastInsertId()
+	entity, _ := r.Find(ctx, strconv.FormatInt(id, 10))
+
+	return entity, nil
 }
 
 // Find : DB からステータスを見つける

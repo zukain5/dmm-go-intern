@@ -8,7 +8,7 @@ import (
 
 type Status interface {
 	// Create status
-	Create(ctx context.Context, s *object.Status) error
+	Create(ctx context.Context, s *object.Status) (*object.Status, error)
 
 	// Find status
 	Find(ctx context.Context, id string) (*object.Status, error)
