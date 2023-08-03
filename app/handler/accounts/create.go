@@ -3,7 +3,6 @@ package accounts
 import (
 	"encoding/json"
 	"net/http"
-	"time"
 
 	"yatter-backend-go/app/domain/object"
 )
@@ -31,14 +30,14 @@ func (h *handler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	account.CreateAt = time.Now()
-	if err := h.ar.Create(ctx, account); err != nil {
+	entity, err := h.ar.Create(ctx, account)
+	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(account); err != nil {
+	if err := json.NewEncoder(w).Encode(entity); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
