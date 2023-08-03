@@ -2,7 +2,6 @@ package dao
 
 import (
 	"context"
-	"log"
 	"yatter-backend-go/app/domain/object"
 	"yatter-backend-go/app/domain/repository"
 
@@ -22,11 +21,35 @@ func NewTimeline(db *sqlx.DB) repository.Timeline {
 }
 
 func (r *timeline) FindPublicTimelines(ctx context.Context, p repository.FindPublicTimelinesParams) (*object.Timeline, error) {
-	var statuses *object.Timeline
-	err := r.db.SelectContext(ctx, &statuses, `SELECT * FROM status`)
+	var statuses []struct {
+		*object.Status
+		*object.Account `db:"account"`
+	}
+
+	query := `
+		SELECT
+			s.*,
+			a.id "account.id",
+			a.username "account.username",
+			a.display_name "account.display_name",
+			a.avatar "account.avatar",
+			a.header "account.header",
+			a.note "account.note",
+			a.create_at "account.create_at"
+		FROM
+			status AS s
+			JOIN account AS a
+				ON s.account_id = a.id
+	`
+	err := r.db.SelectContext(ctx, &statuses, query)
 	if err != nil {
 		return nil, err
 	}
-	log.Println(statuses)
-	return statuses, nil
+
+	var t object.Timeline
+	for _, s := range statuses {
+		s.Status.Account = s.Account
+		t = append(t, s.Status)
+	}
+	return &t, nil
 }
