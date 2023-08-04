@@ -35,7 +35,6 @@ func (r *status) Create(ctx context.Context, s *object.Status) (*object.Status, 
 		)`,
 		map[string]interface{}{
 			"content":    s.Content,
-			"create_at":  s.CreateAt,
 			"account_id": s.Account.ID,
 		},
 	)
