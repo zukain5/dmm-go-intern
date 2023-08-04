@@ -40,11 +40,11 @@ func (r *relationship) Create(ctx context.Context, follower *object.Account, fol
 	// TODO: エラー時の対応
 	id, _ := res.LastInsertId()
 
-	followed_by := r.exists(ctx, followee.ID, follower.ID)
+	followed_by := r.Exists(ctx, followee.ID, follower.ID)
 	return id, followed_by, nil
 }
 
-func (r *relationship) exists(ctx context.Context, follower_id, followee_id int64) bool {
+func (r *relationship) Exists(ctx context.Context, follower_id, followee_id int64) bool {
 	query := `
 		SELECT
 			id

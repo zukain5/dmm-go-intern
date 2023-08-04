@@ -25,6 +25,11 @@ func (h *handler) Follow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if h.rr.Exists(ctx, follower.ID, followee.ID) {
+		http.Error(w, "Already following the account.", http.StatusConflict)
+		return
+	}
+
 	id, followed_by, err := h.rr.Create(ctx, follower, followee)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
