@@ -30,23 +30,13 @@ func (h *handler) Follow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, followed_by, err := h.rr.Create(ctx, follower, followee)
+	rel, err := h.rr.Create(ctx, follower, followee)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
-	res := struct {
-		ID         int64 `json:"id"`
-		Following  bool  `json:"following"`
-		FollowedBy bool  `json:"followed_by"`
-	}{
-		ID:         id,
-		Following:  true,
-		FollowedBy: followed_by,
-	}
-
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(res); err != nil {
+	if err := json.NewEncoder(w).Encode(rel); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

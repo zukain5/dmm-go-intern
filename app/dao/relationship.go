@@ -22,7 +22,7 @@ func NewRelationship(db *sqlx.DB) repository.Relationship {
 	return &relationship{db: db}
 }
 
-func (r *relationship) Create(ctx context.Context, follower *object.Account, followee *object.Account) (int64, bool, error) {
+func (r *relationship) Create(ctx context.Context, follower *object.Account, followee *object.Account) (*object.Relationship, error) {
 	res, err := r.db.ExecContext(
 		ctx,
 		`INSERT INTO relationship (
@@ -34,14 +34,18 @@ func (r *relationship) Create(ctx context.Context, follower *object.Account, fol
 		followee.ID,
 	)
 	if err != nil {
-		return -1, false, fmt.Errorf("failed to follow: %w", err)
+		return nil, fmt.Errorf("failed to follow: %w", err)
 	}
 
 	// TODO: エラー時の対応
 	id, _ := res.LastInsertId()
+	followedBy := r.Exists(ctx, followee.ID, follower.ID)
 
-	followed_by := r.Exists(ctx, followee.ID, follower.ID)
-	return id, followed_by, nil
+	return &object.Relationship{
+		ID:         id,
+		Following:  true,
+		FollowedBy: followedBy,
+	}, nil
 }
 
 func (r *relationship) Exists(ctx context.Context, follower_id, followee_id int64) bool {
