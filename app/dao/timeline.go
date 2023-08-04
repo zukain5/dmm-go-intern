@@ -40,8 +40,13 @@ func (r *timeline) FindPublicTimelines(ctx context.Context, p repository.FindPub
 			status AS s
 			JOIN account AS a
 				ON s.account_id = a.id
+		WHERE
+			s.id >= ?
+			AND s.id <= ?
+		LIMIT
+			?
 	`
-	err := r.db.SelectContext(ctx, &statuses, query)
+	err := r.db.SelectContext(ctx, &statuses, query, 2, 4, 2)
 	if err != nil {
 		return nil, err
 	}
