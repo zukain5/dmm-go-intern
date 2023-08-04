@@ -55,7 +55,7 @@ func (r *relationship) Exists(ctx context.Context, follower_id, followee_id int6
 			AND followee_id = ?
 	`
 	var id int
-	err := r.db.QueryRowxContext(ctx, query, follower_id, followee_id).Scan(&id)
+	err := r.db.GetContext(ctx, &id, query, follower_id, followee_id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return false
