@@ -22,7 +22,7 @@ func NewRelationship(db *sqlx.DB) repository.Relationship {
 	return &relationship{db: db}
 }
 
-func (r *relationship) Create(ctx context.Context, follwer *object.Account, followee *object.Account) (int64, bool, error) {
+func (r *relationship) Create(ctx context.Context, follower *object.Account, followee *object.Account) (int64, bool, error) {
 	res, err := r.db.ExecContext(
 		ctx,
 		`INSERT INTO relationship (
@@ -30,7 +30,7 @@ func (r *relationship) Create(ctx context.Context, follwer *object.Account, foll
 		) VALUES (
 			?, ?
 		)`,
-		follwer.ID,
+		follower.ID,
 		followee.ID,
 	)
 	if err != nil {
@@ -40,7 +40,7 @@ func (r *relationship) Create(ctx context.Context, follwer *object.Account, foll
 	// TODO: エラー時の対応
 	id, _ := res.LastInsertId()
 
-	followed_by := r.exists(ctx, followee.ID, follwer.ID)
+	followed_by := r.exists(ctx, followee.ID, follower.ID)
 	return id, followed_by, nil
 }
 
