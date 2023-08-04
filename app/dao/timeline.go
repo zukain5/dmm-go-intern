@@ -20,7 +20,7 @@ func NewTimeline(db *sqlx.DB) repository.Timeline {
 	return &timeline{db: db}
 }
 
-func (r *timeline) FindPublicTimelines(ctx context.Context, p repository.FindPublicTimelinesParams) (*object.Timeline, error) {
+func (r *timeline) FindPublicTimelines(ctx context.Context, p object.FindPublicTimelinesParams) (*object.Timeline, error) {
 	var statuses []struct {
 		*object.Status
 		*object.Account `db:"account"`
@@ -46,7 +46,7 @@ func (r *timeline) FindPublicTimelines(ctx context.Context, p repository.FindPub
 		LIMIT
 			?
 	`
-	err := r.db.SelectContext(ctx, &statuses, query, 2, 4, 2)
+	err := r.db.SelectContext(ctx, &statuses, query, p.SinceId, p.MaxId, p.Limit)
 	if err != nil {
 		return nil, err
 	}
