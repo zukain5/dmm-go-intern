@@ -17,3 +17,6 @@
 /bin/
 /build/
 /.data/
+
+# for local
+.go-version

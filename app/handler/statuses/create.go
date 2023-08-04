@@ -1,19 +1,18 @@
-package accounts
+package statuses
 
 import (
 	"encoding/json"
 	"net/http"
-
 	"yatter-backend-go/app/domain/object"
+	"yatter-backend-go/app/handler/auth"
 )
 
-// Request body for `POST /v1/accounts`
+// Request body for `POST /v1/statuses`
 type AddRequest struct {
-	Username string
-	Password string
+	Status string
 }
 
-// Handle request for `POST /v1/accounts`
+// Handle request for `POST /v1/statuses`
 func (h *handler) Create(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -23,14 +22,10 @@ func (h *handler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	account := new(object.Account)
-	account.Username = req.Username
-	if err := account.SetPassword(req.Password); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	entity, err := h.ar.Create(ctx, account)
+	status := new(object.Status)
+	status.Content = req.Status
+	status.Account = auth.AccountOf(r)
+	entity, err := h.sr.Create(ctx, status)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
